@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #007bff;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .button-group input[type="submit"],
+        .button-group input[type="button"] {
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button-group input[type="submit"]:hover,
+        .button-group input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+        .button-group input[type="submit"] {
+            margin-right: 5px;
+        }
+        .button-group input[type="button"] {
+            margin-left: 5px;
+        }
+        #mood {
+            height: 80px;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>用户注册</h2>
+    <form action="user/register" method="post" onsubmit="return validateForm()">
+        <label for="phone">手机号</label>
+        <input type="text" id="phone" name="phone" maxlength="13" required>
+        <span class="error-message" id="phoneError"></span>
+
+        <label for="password">密码</label>
+        <input type="password" id="password" name="password" maxlength="20" required>
+        <span class="error-message" id="passwordError"></span>
+
+        <label for="checkPassword">确认密码</label>
+        <input type="password" id="checkPassword" name="checkPassword" maxlength="20" required>
+        <span class="error-message" id="checkPasswordPasswordError"></span>
+
+        <label for="name">用户名</label>
+        <input type="text" id="name" name="name" maxlength="20" required>
+
+        <label for="mood">个性签名</label>
+        <textarea id="mood" name="mood" maxlength="100"></textarea>
+
+        <!-- 隐藏域用于验证手机号是否重复 -->
+        <input type="hidden" id="phoneExists" name="phoneExists" value="false">
+
+        <div class="button-group">
+            <input type="submit" value="注册">
+            <input type="button" value="取消" onclick="window.location.href='index.html'">
+        </div>
+    </form>
+</div>
+
+<script>
+    // 验证表单
+    function validateForm() {
+        const phone = document.getElementById("phone").value;
+        const password = document.getElementById("password").value;
+        const name = document.getElementById("name").value;
+        const checkPassword = document.getElementById("checkPassword").value;
+
+        // 验证手机号
+        const phonePattern = /^[0-9-]+$/;
+        if (!phonePattern.test(phone)) {
+            document.getElementById("phoneError").innerText = "手机号格式不正确";
+            return false;
+        } else {
+            document.getElementById("phoneError").innerText = "";
+        }
+
+        // 验证密码
+        const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{6,20}$/;
+        if (!passwordPattern.test(password)) {
+            document.getElementById("passwordError").innerText = "密码格式不正确，密码由6~20位英文字符或数字或特殊字符组成";
+            return false;
+        } else {
+            document.getElementById("passwordError").innerText = "";
+        }
+
+        // 验证确认密码
+        if (password !== checkPassword) {
+            document.getElementById("checkPasswordPasswordError").innerText = "两次输入的密码不一致";
+            return false;
+        } else  {
+            document.getElementById("checkPasswordPasswordError").innerText = "";
+        }
+
+        if (name.trim() === "") {
+            alert("用户名不能为空");
+            return false;
+        }
+
+        // 如果手机号已存在，阻止表单提交
+        if (document.getElementById("phoneExists").value === "true") {
+            alert("该手机号已被注册，请输入其他手机号");
+            return false;
+        }
+
+        return true;
+    }
+
+    // 页面加载完成后执行
+    window.onload = function () {
+        const phoneInput = document.getElementById("phone");
+        const passwordInput = document.getElementById("password");
+        const checkPasswordInput = document.getElementById("checkPassword");
+
+        // 监听手机号输入框失去焦点事件
+        phoneInput.addEventListener("blur", function () {
+            const phone = phoneInput.value;
+
+            // 验证手机号格式
+            const phonePattern = /^[0-9-]+$/;
+            if (!phonePattern.test(phone)) {
+                document.getElementById("phoneError").innerText = "手机号格式不正确";
+                return;
+            }
+
+            // 向后端发送异步请求，检查手机号是否已存在
+            fetch(`/user/checkPhoneAvailability?phone=${phone}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // 如果手机号已被注册，执行以下操作
+                        document.getElementById("phoneExists").value = "true";
+                        document.getElementById("phoneError").innerText = "该手机号已被注册，请输入其他手机号";
+                    } else {
+                        // 如果手机号未被注册，清空错误信息
+                        document.getElementById("phoneExists").value = "false";
+                        document.getElementById("phoneError").innerText = "";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        // 监听密码输入框失去焦点事件
+        passwordInput.addEventListener("blur", function () {
+            const password = passwordInput.value;
+
+            // 验证密码格式
+            const passwordPattern = /^[a-zA-Z0-9!@#$%^&*,.?/{}\[\]\\=\-~|:;"'()_+]{6,20}$/;
+            if (!passwordPattern.test(password)) {
+                document.getElementById("passwordError").innerText = "密码格式不正确，密码由6~20位英文字符或数字或特殊字符组成";
+            } else {
+                document.getElementById("passwordError").innerText = "";
+            }
+        });
+
+        // 监听确认密码输入框失去焦点事件
+        checkPasswordInput.addEventListener("blur", function (){
+           const checkPassword = checkPasswordInput.value;
+
+           // 验证密码输入框是否和确认密码输入框一样
+            if (checkPassword !== passwordInput.value) {
+                document.getElementById("checkPasswordPasswordError").innerText = "两次输入的密码不一致";
+            } else {
+                document.getElementById("checkPasswordPasswordError").innerText = "";
+            }
+        });
+    };
+</script>
+
+</body>
+</html>

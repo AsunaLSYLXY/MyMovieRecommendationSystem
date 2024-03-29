@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户主页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            margin-top: 50px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        p {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        input[type="button"] {
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>用户主页</h1>
+    <label for="userID">用户 ID</label>
+    <textarea rows="1" id="userID" th:text="${user.id}" readonly></textarea>
+    <label for="userName">用户名</label>
+    <textarea rows="1" id="userName" th:text="${user.name}" readonly></textarea>
+    <label for="userPhone">手机号</label>
+    <textarea rows="1" id="userPhone" th:text="${user.phone}" readonly></textarea>
+    <p>个性签名</p>
+    <label>
+        <textarea rows="4" th:text="${user.mood}" readonly></textarea>
+    </label>
+    <div class="button-group">
+        <input type="button" value="修改用户名" onclick="redirectToUpdateName()">
+        <input type="button" value="修改个性签名" onclick="redirectToUpdateMood()">
+        <input type="button" value="修改手机号" onclick="redirectToUpdatePhone()">
+        <input type="button" value="修改密码" onclick="redirectToUpdatePassword()">
+        <input type="button" value="返回主页" onclick="redirectToIndex()">
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function redirectToIndex() {
+        window.location.href = '/index.html';
+    }
+
+    function redirectToUpdateName() {
+        let id = -1;
+        if ([[${user.id}]] !== null) {
+            id = [[${user.id}]];
+        }
+        let name = "";
+        if ([[${user.name}]] != null) {
+            name = [[${user.name}]];
+        }
+        localStorage.setItem('userName', name.toString());
+        localStorage.setItem('userID', id.toString());
+        window.location.href = '/userUpdateName.html';
+    }
+
+    function redirectToUpdateMood() {
+        let id = -1;
+        if ([[${user.id}]] !== null) {
+            id = [[${user.id}]];
+        }
+        let mood = "";
+        if ([[${user.mood}]] != null) {
+            mood = [[${user.mood}]];
+        }
+        localStorage.setItem('userID', id.toString());
+        localStorage.setItem('userMood', mood.toString());
+        window.location.href = '/userUpdateMood.html';
+    }
+
+    function redirectToUpdatePassword() {
+        let id = -1;
+        if ([[${user.id}]] !== null) {
+            id = [[${user.id}]];
+        }
+        let password = "";
+        if ([[${user.password}]] != null) {
+            password = [[${user.password}]];
+        }
+        localStorage.setItem('userID', id.toString());
+        localStorage.setItem('userPassword', password.toString());
+        window.location.href = '/userUpdatePassword.html';
+    }
+
+    function redirectToUpdatePhone() {
+        let id = -1;
+        if ([[${user.id}]] !== null) {
+            id = [[${user.id}]];
+        }
+        let phone = "";
+        if ([[${user.phone}]] !== null) {
+            phone = [[${user.phone}]];
+        }
+        localStorage.setItem('userID', id.toString());
+        localStorage.setItem('userPhone', phone.toString());
+        window.location.href = '/userUpdatePhone.html';
+    }
+
+    window.onload = function() {
+        // 获取成功或失败消息
+        if ([[${successMessage}]] !== null) {
+            alert([[${successMessage}]]);
+        }
+        if ([[${errorMessage}]] !== null) {
+            alert([[${errorMessage}]]);
+        }
+    }
+    // Spring Boot 之前修改各种东西的老代码
+    // // 处理用户修改名字
+    // @PostMapping("/user/updateUserName")
+    // public String processUpdateUserName(@RequestParam("userID") Integer id,
+    // @RequestParam("userName") String name, Model model) {
+    //     Boolean ok = userService.updateUserNameByID(id, name);
+    //     if (ok) {
+    //         model.addAttribute("successMessage", "用户名 修改成功");
+    //     } else {
+    //         model.addAttribute("errorMessage", "用户名 修改失败");
+    //     }
+    //     User user = userService.selectUserAllInfoByUserID(id);
+    //     model.addAttribute("user", user);
+    //     return "userHomePage";
+    // }
+    //
+    // // 处理用户修改个性签名
+    // @PostMapping("/user/updateUserMood")
+    // public String processUpdateUserMood(@RequestParam("userID") Integer id,
+    // @RequestParam("userMood") String mood, Model model) {
+    //     Boolean ok = userService.updateUserMoodByID(id, mood);
+    //     if (ok) {
+    //         model.addAttribute("successMessage", "个性签名 修改成功");
+    //     } else {
+    //         model.addAttribute("errorMessage", "个性签名 修改失败");
+    //     }
+    //     User user = userService.selectUserAllInfoByUserID(id);
+    //     model.addAttribute("user", user);
+    //     return "userHomePage";
+    // }
+    //
+    // // 处理用户修改密码
+    // @PostMapping("/user/updateUserPassword")
+    // public String processUpdateUserPassword(@RequestParam("userIDInput") Integer id,
+    // @RequestParam("userPasswordInput") String prevPassword,
+    // @RequestParam("newPasswordInput") String password, Model model) {
+    //     String rightPassword = userService.selectUserPasswordByID(id);
+    //     if (rightPassword.equals(prevPassword)) {
+    //         Boolean ok = userService.updateUserPasswordByID(id, password);
+    //         if (ok) {
+    //             model.addAttribute("successMessage", "密码 修改成功");
+    //         } else {
+    //             model.addAttribute("errorMessage", "密码 修改失败");
+    //         }
+    //     } else  {
+    //         model.addAttribute("errorMessage", "旧密码错误");
+    //     }
+    //     User user = userService.selectUserAllInfoByUserID(id);
+    //     model.addAttribute("user", user);
+    //     return "userHomePage";
+    // }
+    // 处理用户修改个性签名
+    // @PostMapping("/user/updateUserPhone")
+    // public String processUpdateUserPhone(@RequestParam("userID") Integer id,
+    // @RequestParam("userPhone") String phone, Model model) {
+    //     Boolean ok = userService.updateUserPhoneByID(id, phone);
+    //     if (ok) {
+    //         model.addAttribute("successMessage", "手机号 修改成功");
+    //     } else {
+    //         model.addAttribute("errorMessage", "手机号 修改失败");
+    //     }
+    //     User user = userService.selectUserAllInfoByUserID(id);
+    //     model.addAttribute("user", user);
+    //     return "userHomePage";
+    // }
+</script>
+
+</body>
+</html>

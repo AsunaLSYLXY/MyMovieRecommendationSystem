@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.101.0">
+    <title>用户登录</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.6/examples/sign-in/">
+
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="../webjars/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        @media (min-width: 768px) {
+        }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    <link href="css/sign_in.css" rel="stylesheet">
+
+    <script>
+        // 验证表单
+        function validateForm() {
+            const phone = document.getElementById("inputPhone").value;
+
+            // 验证手机号
+            const phonePattern = /^[0-9-]+$/;
+            if (!phonePattern.test(phone)) {
+                alert("手机号格式不正确, 应该为数字和符号\'-\'的组合");
+                return false;
+            }
+
+            return true;
+        }
+
+        // 页面加载完成后执行
+        window.onload = function () {
+            alert("注册成功");
+            const inputPhone = document.getElementById("inputPhone");
+
+            // 监听手机号输入框失去焦点事件
+            inputPhone.addEventListener("blur", function () {
+                const phone = inputPhone.value;
+
+                // 验证手机号格式
+                const phonePattern = /^[0-9-]+$/;
+                if (!phonePattern.test(phone)) {
+                    document.getElementById("phoneError").innerText = "手机号格式不正确, 应该为数字和符号\'-\'的组合";
+                } else {
+                    document.getElementById("phoneError").innerText = "";
+                }
+            });
+        };
+
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+    </script>
+
+</head>
+<body class="text-center">
+
+<form class="form-sign_in" action="login" method="post" onsubmit="return validateForm()">
+    <img class="mb-4" src="img/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">登录</h1>
+    <label for="inputPhone" class="sr-only">手机号码</label>
+    <input type="text" id="inputPhone" name="inputPhone" class="form-control" placeholder="手机号码" maxlength="13" required>
+    <span class="error-message" id="phoneError"></span>
+    <label for="inputPassword" class="sr-only">密码</label>
+    <input type="password" id="inputPassword" name="inputPassword" class="form-control" placeholder="密码" maxlength="20" required>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+    <button class="btn btn-lg btn-primary btn-block" onclick="window.location.href='register.html'">注册</button>
+    <button class="btn btn-lg btn-primary btn-block" onclick="goBack()">返回</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lsy.my_movie_recommendation_system.mapper.IUserCommentMapper">
+    <insert id="addComment" parameterType="com.lsy.my_movie_recommendation_system.entity.po.UserComment" useGeneratedKeys="true" keyProperty="recordId">
+        insert into user_comment (userId, movieId, score, comment, timestamp) values (#{userId}, #{movieId}, #{score}, #{comment}, #{timestamp})
+    </insert>
+    <update id="updateCommentByRecordId">
+        update user_comment set score = #{score}, comment = #{comment}, timestamp = #{timestamp} where recordId = #{recordId}
+    </update>
+    <delete id="removeCommentByRecordId">
+        delete from user_comment where recordId = #{recordId}
+    </delete>
+    <select id="selectAllComment" resultType="com.lsy.my_movie_recommendation_system.entity.po.UserComment">
+        select * from user_comment
+    </select>
+    <select id="selectCommentByRecordId" resultType="com.lsy.my_movie_recommendation_system.entity.po.UserComment">
+        select * from user_comment where recordId = #{recordId}
+    </select>
+    <select id="selectCommentByUserId" resultType="com.lsy.my_movie_recommendation_system.entity.po.UserComment">
+        select * from user_comment where userId = #{userId}
+    </select>
+    <select id="selectCommentByMovieId" resultType="com.lsy.my_movie_recommendation_system.entity.po.UserComment">
+        select * from user_comment where movieId = #{movieId}
+    </select>
+    <select id="selectCommentByUserIdAndMovieId" resultType="com.lsy.my_movie_recommendation_system.entity.po.UserComment">
+        select * from user_comment where userId = #{userId} and movieId = #{movieId}
+    </select>
+</mapper>

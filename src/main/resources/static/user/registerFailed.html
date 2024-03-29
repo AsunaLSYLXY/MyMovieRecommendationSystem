@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.101.0">
+    <title>用户注册</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.6/examples/sign-in/">
+
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="../webjars/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+    <style>
+        body {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 40px 0;
+            background-color: #f5f5f5;
+        }
+
+
+        .form-sign_in .form-control {
+            position: relative;
+            box-sizing: border-box;
+            /*height: auto;*/
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .form-sign_in textarea {
+            height: 120px;
+        }
+
+        /* 表单样式 */
+        .form-sign_in {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        @media (min-width: 768px) {
+        }
+    </style>
+    <script>
+        function validateForm() {
+            const phone = document.getElementById("phone").value;
+            const password = document.getElementById("password").value;
+            const passwordConfirm = document.getElementById("passwordConfirmation").value;
+            // 检测手机格式
+            const phonePattern = /^[0-9-]+$/;
+            if (!phonePattern.test(phone)) {
+                alert("手机号格式不正确, 应该为数字和符号\'-\'的组合");
+                phone.value = "";
+                return false;
+            }
+            // 检测密码格式
+            const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{6,20}$/;
+            if (!passwordPattern.test(password)) {
+                alert("密码格式不正确，密码由6~20位英文字符或数字或特殊字符组成");
+                password.value = "";
+                passwordConfirm.value = "";
+                return false;
+            }
+            // 检测两次输入的密码
+            if (password !== passwordConfirm) {
+                alert("两次输入的密码不一致");
+                passwordConfirm.value = "";
+                return false;
+            }
+        }
+        window.onload = function () {
+            alert("注册失败");
+            const phone = document.getElementById("phone");
+            const password = document.getElementById("password");
+            const passwordConfirm = document.getElementById("passwordConfirmation");
+
+            phone.addEventListener("blur", function () {
+                const phoneValue = phone.value;
+
+                // 验证手机号格式
+                const phonePattern = /^[0-9-]+$/;
+                if (!phonePattern.test(phoneValue)) {
+                    document.getElementById("phoneError").innerText = "手机号格式不正确, 应该为数字和符号\'-\'的组合";
+                    phone.value = "";
+                    return;
+                } else  {
+                    document.getElementById("phoneError").innerText = "";
+                }
+
+                const requestData = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone: phoneValue })
+                };
+
+                fetch('/user/checkPhoneAvailability', requestData)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            // 如果手机号已被注册，执行以下操作
+                            document.getElementById("phoneError").innerText = "手机号(" + phoneValue + ")已被注册，请用其它手机号注册";
+                            phone.value = "";
+                        } else  {
+                            document.getElementById("phoneError").innerText = "";
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+
+            password.addEventListener("blur", function () {
+                const passwordValue = password.value;
+
+                // 验证密码格式
+                const passwordPattern = /^[a-zA-Z0-9!@#$%^&*,.?/{}\[\]\\=\-~|:;"'()_+]{6,20}$/;
+                if (!passwordPattern.test(passwordValue)) {
+                    document.getElementById("passwordError").innerText = "密码格式不正确，密码由6~20位英文字符或数字或特殊字符组成";
+                    password.value = "";
+                    passwordConfirm.value = "";
+                } else {
+                    document.getElementById("passwordError").innerText = "";
+                }
+            });
+
+            passwordConfirm.addEventListener("blur", function (){
+                const passwordConfirmValue = passwordConfirm.value;
+
+                // 验证密码输入框是否和确认密码输入框一样
+                if (passwordConfirmValue !== password.value) {
+                    document.getElementById("passwordConfirmationError").innerText = "两次输入的密码不一致";
+                    passwordConfirm.value = "";
+                } else {
+                    document.getElementById("passwordConfirmationError").innerText = "";
+                }
+            });
+        }
+    </script>
+</head>
+<body class="text-center">
+
+<form class="form-sign_in" action="register" method="post" onsubmit="return validateForm()">
+    <img class="mb-4" src="img/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">注册</h1>
+    <label for="phone" class="sr-only">手机号码</label>
+    <input type="text" id="phone" name="phone" class="form-control" placeholder="手机号码" maxlength="13" required>
+    <span class="error-message" id="phoneError"></span>
+    <label for="password" class="sr-only">密码</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="密码" maxlength="20" required>
+    <span class="error-message" id="passwordError"></span>
+    <label for="passwordConfirmation" class="sr-only">确认密码</label>
+    <input type="password" id="passwordConfirmation" class="form-control" placeholder="确认密码" maxlength="20" required>
+    <span class="error-message" id="passwordConfirmationError"></span>
+    <label for="name" class="sr-only">用户名</label>
+    <input type="text" id="name" class="form-control" name="name" placeholder="用户名" maxlength="20" required>
+    <label for="mood" class="sr-only">个性签名</label>
+    <textarea type="text" id="mood" class="form-control" name="mood" placeholder="个性签名" maxlength="100" required></textarea>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">注册</button>
+    <button class="btn btn-lg btn-primary btn-block" onclick="window.location.href='login.html'">登录</button>
+    <button class="btn btn-lg btn-primary btn-block" onclick="goBack()">返回</button>
+</form>
+
+<script>
+
+</script>
+
+</body>
+</html>

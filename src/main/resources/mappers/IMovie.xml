@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lsy.my_movie_recommendation_system.mapper.IMovieMapper">
+    <select id="selectAllMovie" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4
+    </select>
+    <select id="selectMovieByPage" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4 limit #{pageSize} offset #{pageOffset}
+    </select>
+    <select id="selectMovieByID" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4 where id = #{id}
+    </select>
+    <select id="selectMovieByName" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4 where name = #{name}
+    </select>
+    <select id="selectMovieByLikelyName" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4 where name like #{namePattern}
+    </select>
+    <select id="selectMovieCount" resultType="java.lang.Integer">
+        select count(*) from movie_info_4
+    </select>
+    <select id="selectMovieByLikelyNameAndPage" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4 where name like #{namePattern} limit #{pageSize} offset #{pageOffset}
+    </select>
+    <select id="selectMovieByLikelyNameAndLimitN" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4 where name like #{namePattern} limit #{pageSize}
+    </select>
+    <select id="selectMovieCountWithLikelyName" resultType="java.lang.Integer">
+        select count(*) from movie_info_4 where name like #{namePattern}
+    </select>
+    <select id="selectMovieByIdList" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select * from movie_info_4
+        <where>
+            id in
+            <foreach collection="idList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+    <select id="showMovieByPageOrderByRecordCountAndAvgRating" resultType="com.lsy.my_movie_recommendation_system.entity.Movie">
+        select movie_info_4.* from (
+            select movieId
+            from user_movie_db.movie_rating_0
+            group by movieId
+            order by count(*) desc, avg(rating) desc
+            limit #{pageSize} offset #{pageOffset}
+        ) as id_set
+        inner join movie_info_4 on movie_info_4.id = id_set.movieId
+    </select>
+</mapper>

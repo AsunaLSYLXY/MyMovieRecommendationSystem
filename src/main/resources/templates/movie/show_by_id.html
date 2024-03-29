@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电影详情</title>
+    <link th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/example/css/navbar.css}" rel="stylesheet">
+    <script th:src="@{~/jquery/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{~/webjars/bootstrap/4.6.2/js/bootstrap.min.js}"></script>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" th:href="@{/bootstrap-star-rating-4.0.6/css/star-rating.css}" media="all" type="text/css"/>
+<!--    <link rel="stylesheet" th:href="@{/bootstrap-star-rating-4.0.6/css/themes/krajee-fa/theme.css}" media="all" type="text/css"/>-->
+<!--    <link rel="stylesheet" th:href="@{/bootstrap-star-rating-4.0.6/css/themes/krajee-svg/theme.css}" media="all" type="text/css"/>-->
+<!--    <link rel="stylesheet" th:href="@{/bootstrap-star-rating-4.0.6/css/themes/krajee-uni/theme.css}" media="all" type="text/css"/>-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script th:src="@{~/bootstrap-star-rating-4.0.6/js/star-rating.js}" type="text/javascript"></script>
+<!--    <script th:src="@{~/bootstrap-star-rating-4.0.6/js/themes/krajee-fa/theme.js}" type="text/javascript"></script>-->
+<!--    <script th:src="@{~/bootstrap-star-rating-4.0.6/js/themes/krajee-svg/theme.js}" type="text/javascript"></script>-->
+<!--    <script th:src="@{~/bootstrap-star-rating-4.0.6/js/themes/krajee-uni/theme.js}" type="text/javascript"></script>-->
+
+    <script th:inline="javascript">
+
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+        window.onload = function () {
+            if ([[${stateMessageForAddComment}]] !== null) {
+                const stateMessageForAddComment = [[${stateMessageForAddComment}]];
+                alert(stateMessageForAddComment);
+            }
+            const userJson = localStorage.getItem("user");
+            const user = JSON.parse(userJson);
+            let userNameLabel = document.getElementById("userNameLabel");
+            let userLoginState = document.getElementById("userLoginState");
+            let userLoginHRef = document.getElementById("userLoginHRef");
+            let userRegisterHRef = document.getElementById("userRegisterHRef");
+            let userHomeHRef = document.getElementById("userHomeHRef");
+            let userLogoutHRef = document.getElementById("userLogoutHRef");
+            document.getElementById("toMovieHomePage").style.display = "none";
+            if (user !== null) {
+                userNameLabel.innerText = user.name;
+                userLoginState.style.display = "none";
+                userLoginHRef.style.display = "none";
+                userRegisterHRef.style.display = "none";
+                document.getElementById("userIdInToMovieHomePage").value = user.id;
+                document.getElementById("userInInToUserHomePage").value = user.id;
+                document.getElementById("userIdInSelectMovieNameByPrefix").value = user.id;
+                document.getElementById("userIdInMovieRecommend").value = user.id;
+                document.getElementById("userIdLabelInComment").value = user.id;
+            } else {
+                userNameLabel.style.display = "none";
+                userLoginState.innerText = "未登录";
+                userHomeHRef.style.display = "none";
+                userLogoutHRef.style.display = "none";
+                document.getElementById("userIdInToMovieHomePage").value = null;
+                document.getElementById("userInInToUserHomePage").value = null;
+                document.getElementById("userIdInSelectMovieNameByPrefix").value = null;
+                document.getElementById("userIdInMovieRecommend").value = null;
+                document.getElementById("userIdLabelInComment").value = null;
+            }
+        }
+
+        function getMovieNamePrefix() {
+            const moviePrefixNameInput = document.getElementById("moviePrefixNameInput").value;
+
+            $.ajax({
+                type: "post",
+                url: "getHeadMovieByNamePrefix",
+                data: { movieNamePrefix: moviePrefixNameInput },
+                success: function (data) {
+                    updateMovieFullNameDropdown(data);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function updateMovieFullNameDropdown(movieData) {
+            let movieFullNameDropdown = document.getElementById("movieFullNameDropdown");
+            movieFullNameDropdown.innerHTML = ""; // 清空下拉框内容
+            if (movieData.length > 0) {
+                // 将后端返回的电影名字填充到下拉框
+                for (let i = 0; i < movieData.length; i++) {
+                    let option = document.createElement("a");
+                    option.className = "dropdown-item";
+                    option.textContent = movieData[i].name;
+                    option.href = "#"; // 将来可选择的链接
+                    // 添加点击事件监听器
+                    option.addEventListener("click", function() {
+                        document.getElementById("moviePrefixNameInput").value = movieData[i].name;
+                    });
+                    movieFullNameDropdown.appendChild(option);
+                }
+                // 显示下拉框
+                movieFullNameDropdown.style.display = "block";
+            } else {
+                // 如果没有匹配项，隐藏下拉框
+                movieFullNameDropdown.style.display = "none";
+            }
+        }
+
+        // 在单击其他地方时，隐藏下拉框
+        document.addEventListener("click", function (e) {
+            if (!document.getElementById("moviePrefixNameInput").contains(e.target)) {
+                document.getElementById("movieFullNameDropdown").style.display = "none";
+            }
+        })
+
+        // 打分的 script
+        $(document).on('ready', function () {
+            $('.kv-gly-star').rating({
+                containerClass: 'is-star'
+            });
+            $('.kv-gly-heart').rating({
+                containerClass: 'is-heart',
+                defaultCaption: '{rating} hearts',
+                starCaptions: function (rating) {
+                    return rating == 1 ? 'One heart' : rating + ' hearts';
+                },
+                filledStar: '<i class="glyphicon glyphicon-heart"></i>',
+                emptyStar: '<i class="glyphicon glyphicon-heart-empty"></i>'
+            });
+            $('.kv-fa').rating({
+                theme: 'krajee-fa',
+                filledStar: '<i class="fa fa-star"></i>',
+                emptyStar: '<i class="fa fa-star-o"></i>'
+            });
+            $('.kv-fa-heart').rating({
+                defaultCaption: '{rating} hearts',
+                starCaptions: function (rating) {
+                    return rating == 1 ? 'One heart' : rating + ' hearts';
+                },
+                theme: 'krajee-fa',
+                filledStar: '<i class="fa fa-heart"></i>',
+                emptyStar: '<i class="fa fa-heart-o"></i>'
+            });
+            $('.kv-uni-star').rating({
+                theme: 'krajee-uni',
+                filledStar: '&#x2605;',
+                emptyStar: '&#x2606;'
+            });
+            $('.kv-uni-rook').rating({
+                theme: 'krajee-uni',
+                defaultCaption: '{rating} rooks',
+                starCaptions: function (rating) {
+                    return rating == 1 ? 'One rook' : rating + ' rooks';
+                },
+                filledStar: '&#9820;',
+                emptyStar: '&#9814;'
+            });
+            $('.kv-svg').rating({
+                theme: 'krajee-svg',
+                filledStar: '<span class="krajee-icon krajee-icon-star"></span>',
+                emptyStar: '<span class="krajee-icon krajee-icon-star"></span>'
+            });
+            $('.kv-svg-heart').rating({
+                theme: 'krajee-svg',
+                filledStar: '<span class="krajee-icon krajee-icon-heart"></span>',
+                emptyStar: '<span class="krajee-icon krajee-icon-heart"></span>',
+                defaultCaption: '{rating} hearts',
+                starCaptions: function (rating) {
+                    return rating == 1 ? 'One heart' : rating + ' hearts';
+                },
+                containerClass: 'is-heart'
+            });
+
+            $('.rating,.kv-gly-star,.kv-gly-heart,.kv-uni-star,.kv-uni-rook,.kv-fa,.kv-fa-heart,.kv-svg,.kv-svg-heart').on(
+                'change', function () {
+                    document.getElementById("rating").value = $(this).val();
+                    console.log('Rating selected: ' + $(this).val());
+                });
+        });
+    </script>
+    <style>
+        .container {
+            margin-top: 30px;
+        }
+
+        .card {
+            margin-bottom: 30px;
+            background-color: #f8f9fa; /* 设置卡片背景颜色 */
+            border: 1px solid #dee2e6; /* 设置卡片边框颜色 */
+        }
+
+        .card-img-top {
+            max-height: 500px;
+            object-fit: cover;
+        }
+
+        .card-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #343a40; /* 设置标题颜色 */
+        }
+
+        .list-group-item {
+            font-size: 16px;
+            color: #495057; /* 设置列表项文字颜色 */
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* 设置按钮背景颜色 */
+            border-color: #007bff; /* 设置按钮边框颜色 */
+            color: #fff; /* 设置按钮文字颜色 */
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* 设置鼠标悬停时按钮背景颜色 */
+            border-color: #0056b3; /* 设置鼠标悬停时按钮边框颜色 */
+            color: #fff; /* 设置鼠标悬停时按钮文字颜色 */
+        }
+
+        #movieFullNameDropdown {
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+    </style>
+</head>
+<body>
+
+<form id="toMovieHomePage" method="post" th:action="@{redirectToHomePage}">
+    <input type="hidden" th:name="userId" id="userIdInToMovieHomePage">
+</form>
+
+<!--<form id="movieRecommend" method="post" th:action="@{movieRecommend}">-->
+<form id="movieRecommend" method="post" th:action="@{recommendByUserCF}">
+    <input type="hidden" th:name="userId" id="userIdInMovieRecommend">
+</form>
+
+<form id="toUserHomePage" method="post" th:action="@{redirectToUserHome}">
+    <input type="hidden" th:name="userId" id="userInInToUserHomePage">
+</form>
+
+<div>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">LSY的电影推荐系统</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#" onclick="document:toMovieHomePage.submit()">主页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="document:movieRecommend.submit()">猜我喜欢</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" id="userLoginState"></a>
+                    <a class="nav-link disabled" id="userNameLabel"></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-expanded="false">我的</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" id="userLoginHRef" th:href="@{/user/login.html}">登录</a>
+                        <a class="dropdown-item" id="userRegisterHRef" href="#">注册</a>
+                        <a class="dropdown-item" id="userHomeHRef" href="#" onclick="document:toUserHomePage.submit()">个人中心</a>
+                        <a class="dropdown-item" id="userLogoutHRef" th:href="@{/user/login.html}">退出</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-md-0" th:action="@{getHeadMovieByNamePrefixAndPage}" method="post">
+                <label>
+                    <input class="form-control" type="text" id="moviePrefixNameInput" name="moviePrefixNameInput" placeholder="输入电影名字" oninput="getMovieNamePrefix()">
+                    <!-- 下拉框容器 -->
+                    <div id="movieFullNameDropdown" class="dropdown-menu" style="display: none;"></div>
+                </label>
+                <!-- 添加搜索按钮 -->
+                <input class="card-text" type="hidden" id="userIdInSelectMovieNameByPrefix" name="userIdInSelectMovieNameByPrefix">
+                <button type="submit" class="btn btn-primary ml-2">搜索</button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <!-- 电影海报 -->
+                <img th:src="${movie.localUrl}" class="card-img-top" alt="电影海报">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${movie.name}">电影名字</h5>
+                    <ul class="list-group list-group-flush">
+                        <!-- 其他电影信息 -->
+                        <li class="list-group-item"><strong>编号:</strong> <span th:text="${movie.getId()}"></span></li>
+                        <li class="list-group-item"><strong>播放时长:</strong> <span th:text="${movie.getRuntime()}"></span></li>
+                        <li class="list-group-item"><strong>标签:</strong> <span th:text="${movie.getTags()}"></span></li>
+                        <li class="list-group-item"><strong>描述:</strong> <span th:text="${movie.getDescription()}"></span></li>
+                        <li class="list-group-item"><strong>导演:</strong> <span th:text="${movie.getDirectors()}"></span></li>
+                        <li class="list-group-item"><strong>演员:</strong> <span th:text="${movie.getStarts()}"></span></li>
+                        <li class="list-group-item"><strong>作家:</strong> <span th:text="${movie.getWriters()}"></span></li>
+                        <li class="list-group-item"><strong>发布时间:</strong> <span th:text="${movie.getReleaseTime()}"></span></li>
+                        <li class="list-group-item"><strong>所属国家:</strong> <span th:text="${movie.getCountry()}"></span></li>
+                        <li class="list-group-item"><strong>类型:</strong> <span th:text="${movie.getType()}"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">添加评论</h5>
+                    <form id="addCommentForm" th:action="@{addComment}" method="post">
+                        <div class="form-group">
+                            <label for="commentText">评论内容</label>
+                            <textarea class="form-control" id="commentText" name="commentText" rows="3"></textarea>
+                        </div>
+                        <label for="rating">评分</label>
+                        <input id="rating" name="rating" type="text" class="rating rating-loading" value="1.75" data-size="md" title="">
+                        <input type="hidden" th:name="movieId" th:value="${movie.getId()}">
+                        <input type="hidden" th:name="userId" id="userIdLabelInComment">
+                        <button type="submit" class="btn btn-primary">提交</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container text-center">
+    <input type="button" class="btn btn-primary" value="返回" onclick="goBack()">
+</div>
+
+
+</body>
+</html>

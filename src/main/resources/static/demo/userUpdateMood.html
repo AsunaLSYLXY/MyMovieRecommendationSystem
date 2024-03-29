@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改个性签名</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            resize: vertical; /* Allow vertical resizing */
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+        }
+
+        input[type="button"] {
+            background-color: #6c757d;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="button"]:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>修改个性签名</h2>
+    <form id="updateForm" action="user/updateUserMood" method="post">
+        <input type="hidden" name="userID" id="userIDInput">
+        <label for="userMoodInput"></label><textarea id="userMoodInput" name="userMood" rows="4" maxlength="100" required></textarea>
+        <div class="button-group">
+            <input type="submit" value="修改">
+            <input type="button" value="取消" onclick="goBack()">
+        </div>
+    </form>
+</div>
+<script>
+    // 解析收到的个性签名，并显示在输入的文本框里面
+    window.onload = function() {
+        const userID = localStorage.getItem('userID');
+        const userMood = localStorage.getItem('userMood');
+        const userIDInput = document.getElementById("userIDInput");
+        const userMoodInput = document.getElementById("userMoodInput");
+        if (userIDInput) {
+            userIDInput.value = userID;
+        }
+        if (userMoodInput) {
+            userMoodInput.value = userMood;
+        }
+    }
+    // 返回上一页
+    function goBack() {
+        window.history.back();
+    }
+</script>
+</body>
+</html>

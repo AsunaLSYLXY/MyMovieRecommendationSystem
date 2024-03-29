@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改手机号</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            color: #ff0000;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>修改手机号</h2>
+    <form id="updateForm" action="user/updateUserPhone" method="post" onsubmit="return validateForm()">
+        <input type="hidden" name="userID" id="userIDInput">
+        <label for="userPhoneInput">新手机号：</label>
+        <input type="text" id="userPhoneInput" name="userPhone" placeholder="输入新的手机号" maxlength="13" required>
+        <span class="error-message" id="phoneError"></span>
+        <!-- 隐藏域用于验证手机号是否重复 -->
+        <input type="hidden" id="phoneExists" name="phoneExists" value="false">
+        <div class="button-group">
+            <input type="submit" value="修改">
+            <input type="button" value="取消" onclick="goBack()">
+        </div>
+    </form>
+</div>
+<script>
+    window.onload = function () {
+        const userID = localStorage.getItem('userID');
+        const userPhone = localStorage.getItem('userPhone');
+        const userIDInput = document.getElementById('userIDInput');
+        const userPhoneInput = document.getElementById('userPhoneInput');
+        if (userIDInput) {
+            userIDInput.value = userID;
+        }
+        if (userPhoneInput) {
+            userPhoneInput.value = userPhone;
+        }
+        userPhoneInput.addEventListener("blur", function (){
+            const phone = userPhoneInput.value;
+
+            // 验证手机号
+            const phonePattern = /^[0-9-]+$/;
+            if (!phonePattern.test(phone)) {
+                document.getElementById('phoneError').innerText = "手机号格式不正确";
+                return;
+            } else  {
+                document.getElementById("phoneError").innerText = "";
+            }
+            // 向后端发送异步请求，检查手机号是否已存在
+            fetch(`/user/checkPhoneAvailability?phone=${phone}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // 如果手机号已被注册，执行以下操作
+                        document.getElementById("phoneExists").value = "true";
+                        document.getElementById("phoneError").innerText = "该手机号已被注册，请输入其他手机号";
+                    } else {
+                        // 如果手机号未被注册，清空错误信息
+                        document.getElementById("phoneExists").value = "false";
+                        document.getElementById("phoneError").innerText = "";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    };
+    function validateForm() {
+        const phone = document.getElementById('userPhoneInput').value;
+        // 验证手机号
+        const phonePattern = /^[0-9-]+$/;
+        if (!phonePattern.test(phone)) {
+            document.getElementById('phoneError').innerText = "手机号格式不正确";
+            return false;
+        } else {
+            document.getElementById("phoneError").innerText = "";
+        }
+        // 如果手机号已存在，阻止表单提交
+        if (document.getElementById("phoneExists").value === "true") {
+            alert("该手机号已被注册，请输入其他手机号");
+            return false;
+        }
+        return true;
+    }
+    // 返回上一页
+    function goBack() {
+        window.history.back();
+    }
+</script>
+</body>
+</html>
