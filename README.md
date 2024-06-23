@@ -25,3 +25,11 @@
 使用了UserCF作为推荐算法，UserCF的代码逻辑可以参考：https://www.jianshu.com/p/ec3de12db6e7
 
 考虑到如果用户评分不多，使用UserCF算法不能很好的进行推荐，因此在用户评论次数较少的时候（小于20个，因为数据集里面参与评论的用户至少评论20条），对于电影按照被评论次数为第一关键字，评分平均数为第二关键字降序推荐给用户。当评论次数达到阈值的时候，正常采用UserCF算法进行推荐。
+
+其中一个电影评论数大于等于20的用户对应的电影推荐结果：
+
+![Image text](https://github.com/AsunaLSYLXY/MyMovieRecommendationSystem/blob/main/img/%E8%AF%84%E8%AE%BA%E6%95%B0%E9%87%8F%E5%A4%A7%E4%BA%8E%E7%AD%89%E4%BA%8E20%E7%9A%84%E6%8E%A8%E8%8D%90%E7%BB%93%E6%9E%9C.png)
+
+其中一个电影评论数小于20的用户对应的电影推荐结果：
+
+![Image text](https://github.com/AsunaLSYLXY/MyMovieRecommendationSystem/blob/main/img/%E8%AF%84%E8%AE%BA%E6%95%B0%E9%87%8F%E5%B0%8F%E4%BA%8E20%E7%9A%84%E6%8E%A8%E8%8D%90%E7%BB%93%E6%9E%9C.png)
