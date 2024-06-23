@@ -6,3 +6,4 @@
 
 该数据集包含：
 
+![Image text](https://github.com/AsunaLSYLXY/MyMovieRecommendationSystem/blob/main/img/%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AF%B4%E6%98%8E.png)
